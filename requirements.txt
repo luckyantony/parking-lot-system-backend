@@ -4,3 +4,5 @@ flask_migrate
 flask_cors
 flask_jwt_extended
 python-dotenv
+gunicorn
+psycopg2-binary
