@@ -31,3 +31,14 @@ ehthumbs.db
 # Postman collections (if local)
 Parking_Lot_API_Collection*.json
 *.Zone.Identifier
+
+.env
+__pycache__/
+instance/
+*.pyc
+*.sqlite3
+*.db
+.env.*
+.venv/
+migrations/
+*.zone.identifier

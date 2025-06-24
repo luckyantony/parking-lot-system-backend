@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from app import create_app
 from extensions import db
 from models import User, ParkingLot, ParkingSpot
@@ -20,4 +23,4 @@ with app.app_context():
         db.session.add(spot)
 
     db.session.commit()
-    print(" Seeded database successfully:)!")
+    print("Seeded database successfully :)")
