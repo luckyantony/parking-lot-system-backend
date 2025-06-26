@@ -4,6 +4,7 @@ load_dotenv()
 from app import create_app
 from extensions import db
 from models import User, ParkingLot, ParkingSpot
+from werkzeug.security import generate_password_hash
 
 app = create_app()
 
@@ -11,8 +12,12 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    user = User(username="admin")
-    db.session.add(user)
+    admin = User(
+        username="admin",
+        email="admin@example.com",
+        password_hash=generate_password_hash("adminpass")
+    )
+    db.session.add(admin)
 
     lot = ParkingLot(name="Lot A", location="Nairobi CBD")
     db.session.add(lot)

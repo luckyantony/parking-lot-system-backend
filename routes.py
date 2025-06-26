@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 api = Blueprint("api", __name__)
 
-# === Auth Routes ===
+# === Auth ===
 
 @api.route("/register", methods=["POST"])
 def register():
@@ -46,13 +46,12 @@ def login():
     return {"user": user.to_dict(), "token": token}, 200
 
 
-@api.route("/me")
+@api.route("/me", methods=["GET"])
 @jwt_required()
 def me():
     uid = get_jwt_identity()
     user = User.query.get(uid)
     return user.to_dict()
-
 
 # === Vehicles ===
 
@@ -73,19 +72,17 @@ def vehicles():
 # === Parking Spots ===
 
 @api.route("/spots", methods=["GET"])
-def spots():
+def get_spots():
     spots = ParkingSpot.query.all()
-    return jsonify([
-        {
-            "id": s.id,
-            "spot_number": s.spot_number,
-            "status": s.status,
-            "lot": s.lot.name if s.lot else None
-        } for s in spots
-    ])
+    return jsonify([{
+        "id": s.id,
+        "spot_number": s.spot_number,
+        "status": s.status,
+        "lot": s.lot.name if s.lot else None
+    } for s in spots])
 
 
-# === Book a Spot ===
+# === Book Spot ===
 
 @api.route("/book", methods=["POST"])
 @jwt_required()
@@ -113,7 +110,7 @@ def book_spot():
 def checkout(ticket_id):
     ticket = Ticket.query.get(ticket_id)
     if not ticket or ticket.check_out:
-        return {"error": "Already checked out or not found"}, 400
+        return {"error": "Invalid ticket or already checked out"}, 400
     ticket.check_out = datetime.now().isoformat()
     ticket.spot.status = "available"
     db.session.commit()
