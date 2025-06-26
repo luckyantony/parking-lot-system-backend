@@ -23,7 +23,7 @@ class Vehicle(db.Model):
     __tablename__ = "vehicles"
     id = db.Column(db.Integer, primary_key=True)
     plate_number = db.Column(db.String, nullable=False)
-    type = db.Column(db.String, nullable=True)  # Added to match Postman
+    type = db.Column(db.String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     tickets = db.relationship("Ticket", backref="vehicle", cascade="all, delete")
     def to_dict(self):
@@ -45,7 +45,7 @@ class ParkingSpot(db.Model):
     __tablename__ = "parking_spots"
     id = db.Column(db.Integer, primary_key=True)
     spot_number = db.Column(db.String, nullable=False)
-    status = db.Column(db.String, default="available")  # available, occupied
+    status = db.Column(db.String, default="available")
     lot_id = db.Column(db.Integer, db.ForeignKey("parking_lots.id"))
     tickets = db.relationship("Ticket", backref="spot", cascade="all, delete")
 

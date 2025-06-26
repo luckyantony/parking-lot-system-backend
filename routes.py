@@ -105,12 +105,12 @@ def get_spots():
     } for s in spots])
 
 # === Book Spot (Tickets) ===
-@api.route("/tickets", methods=["POST"])  # Changed to match Postman
+@api.route("/tickets", methods=["POST"])
 @jwt_required()
 def book_spot():
     data = request.get_json()
     vehicle_id = data.get("vehicle_id")
-    spot_id = data.get("parking_spot_id")  # Updated to match Postman
+    spot_id = data.get("parking_spot_id")
     if not vehicle_id or not spot_id:
         return {"error": "Vehicle ID and parking spot ID are required"}, 400
     spot = ParkingSpot.query.get(spot_id)
