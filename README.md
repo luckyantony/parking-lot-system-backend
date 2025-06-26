@@ -1,8 +1,8 @@
-# 🚗 Parking Lot System API
+#  Parking Lot System API
 
 A Flask RESTful API for managing a parking lot system with PostgreSQL and JWT-based authentication.
 
-## 🎯 Learning Goals
+##  Learning Goals
 
 * Build a backend API using Flask
 * Use PostgreSQL for persistent data storage
@@ -10,7 +10,7 @@ A Flask RESTful API for managing a parking lot system with PostgreSQL and JWT-ba
 * Enforce route-based access control
 * Work with related models: `User`, `Vehicle`, `ParkingLot`, `ParkingSpot`, `Ticket`
 
-## 🧰 Requirements
+##  Requirements
 
 * Python 3.8+
 * PostgreSQL (local or via Render)
@@ -19,7 +19,7 @@ A Flask RESTful API for managing a parking lot system with PostgreSQL and JWT-ba
 * Postman (optional, for testing)
 * Render account (for deployment)
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
 ### 1. Clone Repository
 
@@ -76,7 +76,7 @@ Visit: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 
 Deployed: [https://parking-lot-system-3g7g.onrender.com/](https://parking-lot-system-3g7g.onrender.com/)
 
-## 🔐 Auth Flow
+##  Auth Flow
 
 ### Register
 
@@ -107,7 +107,7 @@ Content-Type: application/json
 Authorization: Bearer <your_jwt_token>
 ```
 
-## 📊 API Endpoints
+##  API Endpoints
 
 | Endpoint                    | Method | Auth Required | Description                         |
 | --------------------------- | ------ | ------------- | ----------------------------------- |
@@ -123,7 +123,7 @@ Authorization: Bearer <your_jwt_token>
 | /api/checkout/\<ticket\_id> | PATCH  | Yes           | Check out a ticket                  |
 | /api/test-db                | GET    | No            | Test database connectivity          |
 
-## 📈 Detailed Endpoints
+##  Detailed Endpoints
 
 ### Register
 
@@ -241,7 +241,7 @@ def test_db():
         return {"error": f"Database connection failed: {str(e)}"}, 500
 ```
 
-## 📃 Data Models
+##  Data Models
 
 * **User**: Unique username, email, hashed password
 * **Vehicle**: Belongs to User, has plate number and optional type
@@ -257,14 +257,14 @@ def test_db():
 * ParkingSpot: spot number required
 * Ticket: vehicle ID, spot ID, and check-in required
 
-## 🧪 Postman Testing
+##  Postman Testing
 
 1. Import `Parking_Lot_API_Collection.json`
 2. Register/Login to get JWT token
 3. Set `jwt_token` variable
 4. Use token for protected routes
 
-## 🧱 Tech Stack
+##  Tech Stack
 
 * Python
 * Flask
@@ -276,7 +276,7 @@ def test_db():
 * Gunicorn
 * Render
 
-## 🚀 Deployment (Render)
+##  Deployment (Render)
 
 1. Push to GitHub
 2. Create Web Service on Render
@@ -293,10 +293,10 @@ release: flask db upgrade
 web: gunicorn app:app
 ```
 
-## 👨‍💼 Author
+##  Author
 
 Built by Luckyantony Leshan with 💻, ❤️, and ☕️
 
-## 📄 License
+##  License
 
 ISC License
