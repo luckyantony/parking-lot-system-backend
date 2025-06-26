@@ -68,6 +68,33 @@ def vehicles():
     vehicles = Vehicle.query.filter_by(user_id=uid).all()
     return jsonify([v.to_dict() for v in vehicles])
 
+# === Parking Lots ===
+
+@api.route("/parking-lots", methods=["GET", "POST"])
+@jwt_required()
+def parking_lots():
+    if request.method == "POST":
+        data = request.get_json()
+        name = data.get("name")
+        location = data.get("location")
+
+        if not name or not location:
+            return {"error": "Name and location are required"}, 400
+
+        lot = ParkingLot(name=name, location=location)
+        db.session.add(lot)
+        db.session.commit()
+        return {"message": "Parking lot created", "lot_id": lot.id}, 201
+
+    lots = ParkingLot.query.all()
+    return jsonify([
+        {
+            "id": lot.id,
+            "name": lot.name,
+            "location": lot.location,
+            "spots": len(lot.spots)
+        } for lot in lots
+    ])
 
 # === Parking Spots ===
 
@@ -80,7 +107,6 @@ def get_spots():
         "status": s.status,
         "lot": s.lot.name if s.lot else None
     } for s in spots])
-
 
 # === Book Spot ===
 
@@ -101,7 +127,6 @@ def book_spot():
     db.session.add(ticket)
     db.session.commit()
     return {"message": "Spot booked", "ticket_id": ticket.id}
-
 
 # === Checkout ===
 
