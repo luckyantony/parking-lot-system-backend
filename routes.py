@@ -28,7 +28,7 @@ def register():
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=str(user.id))  
     return {"user": user.to_dict(), "token": token}, 201
 
 @api.route("/login", methods=["POST"])
@@ -39,14 +39,14 @@ def login():
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
         return {"error": "Invalid email or password"}, 401
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=str(user.id))  
     return {"user": user.to_dict(), "token": token}, 200
 
 @api.route("/me", methods=["GET"])
 @jwt_required()
 def me():
-    uid = get_jwt_identity()
-    user = User.query.get(uid)
+    uid = get_jwt_identity()  
+    user = User.query.get(int(uid))  
     if not user:
         return {"error": "User not found"}, 404
     return user.to_dict()
@@ -55,7 +55,7 @@ def me():
 @api.route("/vehicles", methods=["GET", "POST"])
 @jwt_required()
 def vehicles():
-    uid = get_jwt_identity()
+    uid = int(get_jwt_identity())  
     if request.method == "POST":
         data = request.get_json()
         plate_number = data.get("plate_number")
