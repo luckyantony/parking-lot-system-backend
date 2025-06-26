@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Vehicle, ParkingLot, ParkingSpot, Ticket
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 api = Blueprint("api", __name__)
 
@@ -9,23 +10,41 @@ api = Blueprint("api", __name__)
 
 @api.route("/register", methods=["POST"])
 def register():
-    data = request.json
-    if User.query.filter_by(username=data["username"]).first():
-        return {"error": "Username taken"}, 400
-    user = User(username=data["username"])
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not all([username, email, password]):
+        return {"error": "All fields are required"}, 400
+
+    if User.query.filter_by(username=username).first():
+        return {"error": "Username already taken"}, 400
+    if User.query.filter_by(email=email).first():
+        return {"error": "Email already taken"}, 400
+
+    hashed_pw = generate_password_hash(password)
+    user = User(username=username, email=email, password_hash=hashed_pw)
     db.session.add(user)
     db.session.commit()
+
     token = create_access_token(identity=user.id)
-    return {"user": user.to_dict(), "token": token}
+    return {"user": user.to_dict(), "token": token}, 201
+
 
 @api.route("/login", methods=["POST"])
 def login():
-    data = request.json
-    user = User.query.filter_by(username=data["username"]).first()
-    if user:
-        token = create_access_token(identity=user.id)
-        return {"user": user.to_dict(), "token": token}
-    return {"error": "Invalid login"}, 401
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password_hash, password):
+        return {"error": "Invalid email or password"}, 401
+
+    token = create_access_token(identity=user.id)
+    return {"user": user.to_dict(), "token": token}, 200
+
 
 @api.route("/me")
 @jwt_required()
@@ -33,6 +52,7 @@ def me():
     uid = get_jwt_identity()
     user = User.query.get(uid)
     return user.to_dict()
+
 
 # === Vehicles ===
 
@@ -49,6 +69,7 @@ def vehicles():
     vehicles = Vehicle.query.filter_by(user_id=uid).all()
     return jsonify([v.to_dict() for v in vehicles])
 
+
 # === Parking Spots ===
 
 @api.route("/spots", methods=["GET"])
@@ -62,6 +83,7 @@ def spots():
             "lot": s.lot.name if s.lot else None
         } for s in spots
     ])
+
 
 # === Book a Spot ===
 
@@ -82,6 +104,7 @@ def book_spot():
     db.session.add(ticket)
     db.session.commit()
     return {"message": "Spot booked", "ticket_id": ticket.id}
+
 
 # === Checkout ===
 
