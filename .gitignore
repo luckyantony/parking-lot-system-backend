@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *.egg
@@ -6,21 +5,17 @@ __pycache__/
 dist/
 build/
 
-# Virtualenv
 .venv/
 env/
 venv/
 
-# Flask Migrations
 migrations/
 *.db
 instance/
 *.sqlite3
 
-# Secrets and configs
 .env
 
-# System files
 .DS_Store
 *.swp
 *~
@@ -28,7 +23,6 @@ instance/
 Thumbs.db
 ehthumbs.db
 
-# Postman collections (if local)
 Parking_Lot_API_Collection*.json
 *.Zone.Identifier
 
