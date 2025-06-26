@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 from dotenv import load_dotenv
 load_dotenv()
@@ -14,13 +15,20 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
-    CORS(app)
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
 
-    from routes import api
-    app.register_blueprint(api, url_prefix="/api")
+    try:
+        db.init_app(app)
+        migrate.init_app(app, db)
+        jwt.init_app(app)
+        CORS(app)
+
+        from routes import api
+        app.register_blueprint(api, url_prefix="/api")
+    except Exception as e:
+        logger.error(f"Error initializing app: {str(e)}")
+        raise
 
     return app
 
