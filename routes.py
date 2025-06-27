@@ -104,38 +104,53 @@ def get_spots():
         "lot": s.lot.name if s.lot else None
     } for s in spots])
 
-# === Book Spot (Tickets) ===
-@api.route("/tickets", methods=["POST"])
+# === Tickets ===
+@api.route("/tickets", methods=["GET", "POST"])
 @jwt_required()
-def book_spot():
-    data = request.get_json()
-    vehicle_id = data.get("vehicle_id")
-    spot_id = data.get("parking_spot_id")
-    if not vehicle_id or not spot_id:
-        return {"error": "Vehicle ID and parking spot ID are required"}, 400
-    spot = ParkingSpot.query.get(spot_id)
-    if not spot or spot.status != "available":
-        return {"error": "Spot unavailable"}, 400
-    vehicle = Vehicle.query.get(vehicle_id)
-    if not vehicle:
-        return {"error": "Vehicle not found"}, 400
-    ticket = Ticket(
-        vehicle_id=vehicle_id,
-        spot_id=spot.id,
-        check_in=datetime.now()
-    )
-    spot.status = "occupied"
-    db.session.add(ticket)
-    db.session.commit()
-    return {"message": "Spot booked", "ticket_id": ticket.id}, 201
+def tickets():
+    uid = int(get_jwt_identity())
+    if request.method == "POST":
+        data = request.get_json()
+        vehicle_id = data.get("vehicle_id")
+        spot_id = data.get("parking_spot_id")
+        if not vehicle_id or not spot_id:
+            return {"error": "Vehicle ID and parking spot ID are required"}, 400
+        spot = ParkingSpot.query.get(spot_id)
+        if not spot or spot.status != "available":
+            return {"error": "Spot unavailable"}, 400
+        vehicle = Vehicle.query.get(vehicle_id)
+        if not vehicle or vehicle.user_id != uid:
+            return {"error": "Vehicle not found or not owned by user"}, 400
+        ticket = Ticket(
+            vehicle_id=vehicle_id,
+            spot_id=spot.id,
+            check_in=datetime.now()
+        )
+        spot.status = "occupied"
+        db.session.add(ticket)
+        db.session.commit()
+        return {"message": "Spot booked", "ticket_id": ticket.id}, 201
+    tickets = Ticket.query.join(Vehicle).filter(Vehicle.user_id == uid).all()
+    return jsonify([
+        {
+            "id": t.id,
+            "vehicle_id": t.vehicle_id,
+            "spot_id": t.spot_id,
+            "check_in": t.check_in.isoformat(),
+            "check_out": t.check_out.isoformat() if t.check_out else None
+        } for t in tickets
+    ])
 
 # === Checkout ===
 @api.route("/checkout/<int:ticket_id>", methods=["PATCH"])
 @jwt_required()
 def checkout(ticket_id):
+    uid = int(get_jwt_identity())
     ticket = Ticket.query.get(ticket_id)
     if not ticket or ticket.check_out:
         return {"error": "Invalid ticket or already checked out"}, 400
+    if ticket.vehicle.user_id != uid:
+        return {"error": "Not authorized to check out this ticket"}, 403
     ticket.check_out = datetime.now()
     ticket.spot.status = "available"
     db.session.commit()
